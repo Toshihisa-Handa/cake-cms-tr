@@ -32,27 +32,38 @@ class ArticlesController extends AppController
             }
             $this->Flash->error(__('Unable to add your article.'));
         }
-       $tags = $this->Articles->Tags->find('list');
-       $this->set('tags', $tags);
+        // タグのリストを取得
+        $tags = $this->Articles->Tags->find('list');
 
+        // ビューコンテキストに tags をセット
+        $this->set('tags', $tags);
 
         $this->set('article', $article);
     }
 
     public function edit($slug)
-{
-    $article = $this->Articles->findBySlug($slug)->firstOrFail();
-    if ($this->request->is(['post', 'put'])) {
-        $this->Articles->patchEntity($article, $this->request->getData());
-        if ($this->Articles->save($article)) {
-            $this->Flash->success(__('Your article has been updated.'));
-            return $this->redirect(['action' => 'index']);
+    {
+        $article = $this->Articles
+            ->findBySlug($slug)
+            ->contain('Tags') // 関連づけられた Tags を読み込む
+            ->firstOrFail();
+        if ($this->request->is(['post', 'put'])) {
+            $this->Articles->patchEntity($article, $this->request->getData());
+            if ($this->Articles->save($article)) {
+                $this->Flash->success(__('Your article has been updated.'));
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->Flash->error(__('Unable to update your article.'));
         }
-        $this->Flash->error(__('Unable to update your article.'));
+    
+        // タグのリストを取得
+        $tags = $this->Articles->Tags->find('list');
+    
+        // ビューコンテキストに tags をセット
+        $this->set('tags', $tags);
+    
+        $this->set('article', $article);
     }
-
-    $this->set('article', $article);
-}
 
 public function delete($slug)
 {
@@ -64,5 +75,19 @@ public function delete($slug)
         return $this->redirect(['action' => 'index']);
     }
 }
+
+public function tags()
+{
+    $tags = $this->request->getParam('pass');
+    $articles = $this->Articles->find('tagged',[
+        'tags' => $tags
+    ]);
+    $this->set([
+        'articles' => $articles,
+        'tags' => $tags
+        ]);
+}
+
+
 
 }
