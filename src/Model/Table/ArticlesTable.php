@@ -5,6 +5,7 @@ namespace App\Model\Table;
 use Cake\ORM\Table;
 // Text クラス
 use Cake\Utility\Text;
+use Cake\Validation\Validator;
 
 class ArticlesTable extends Table
 {
@@ -21,6 +22,19 @@ class ArticlesTable extends Table
             $entity->slug = substr($sluggedTitle, 0, 191);
         }
     }
+
+    public function validationDefault(Validator $validator)
+{
+    $validator
+        ->allowEmptyString('title', false)
+        ->minLength('title', 1)
+        ->maxLength('title', 255)
+
+        ->allowEmptyString('body', false)
+        ->minLength('body', 1);
+
+    return $validator;
+}
 
 }
 
