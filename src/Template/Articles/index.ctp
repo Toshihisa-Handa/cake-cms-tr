@@ -18,6 +18,9 @@
         <td>
             <?= $article->created->format('y/m/d') ?>
         </td>
+        <td>
+            <?= $this->Html->link('編集', ['action' => 'edit', $article->slug]) ?>
+        </td>
     </tr>
     <?php endforeach; ?>
 </table>
